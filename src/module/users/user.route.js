@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { createUser, deleteUser, findAllUsers, updateUser, findOneUser } from './user.controller.js'
-import { validExistUser } from './user.middleware.js';
+import { protect, protectAccount, validExistUser } from './user.middleware.js';
 import { login } from './user.controller.js';
+
 
 
 export const router = Router();
@@ -16,6 +17,6 @@ router.use('/:id', validExistUser)
 router.route('/:id')
 //.post('/login', login)
 .get(findOneUser)
-.patch(updateUser)
-.delete(deleteUser);
+.patch(protect, protectAccount, updateUser)
+.delete(protect, protectAccount, deleteUser);
  

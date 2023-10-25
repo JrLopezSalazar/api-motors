@@ -36,4 +36,13 @@ export class RepairService {
     async delete(repair){
         return await repair.update({ status: 'cancelled'})
     } 
+
+    async findRepairByRole(repair){
+        return await repair.findOne({
+            where:{
+                id,
+                //status: 'employee'
+            }
+        })
+    }
 }

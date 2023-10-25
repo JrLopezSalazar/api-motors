@@ -5,7 +5,8 @@ export const repairSchema = z.object({
   date: z.string(),
   status: z.enum([('completed', 'pending', 'cancelled')]),
   motorsNumber: z.number(),
-  description: z.string()
+  description: z.string(),
+  userId: z.number()
 
 });
  
@@ -24,3 +25,19 @@ export const validateRepair = (data) => {
       repairData
   }
 };
+
+export function validatePartialRepair(data){
+  const result = repairSchema.partial().safeParse(data)
+
+  const { 
+    hasError, 
+    errorMessages, 
+    data: repairData
+  } = extractValidationData(result)
+  
+  return {
+    hasError,
+    errorMessages,
+    repairData
+  }
+}

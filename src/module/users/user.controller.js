@@ -4,6 +4,8 @@ import { validatePartialUser } from "./user.schema.js"
 import { validateLogin } from "./user.schema.js"
 import generateJWT from "../../config/plugins/generate-jwt.plugin.js"
 import { AppError} from "../../erros/index.js"
+import { encryptedPassword, verifyPassword} from "./../../config/plugins/encripted.password.js"
+import { catchAsync } from "../../erros/index.js"
 
 
 
@@ -12,20 +14,17 @@ const userService = new UserService()
 
 
 
-export const findAllUsers = async(req, res, next) => {
-    try {
+export const findAllUsers = catchAsync (async(req, res, next) => {
+    
         const users = await userService.findAll()
         return res.status(200).json(users)
 
-    } catch (error) {
-        return res.status(500).json(error)
-        
-    }
-}
+    
+})
 
 
-export const createUser = async(req, res, next) => {
-    try {
+export const createUser = catchAsync (async(req, res, next) => {
+    
         const { hasError, errorMessages, userData } = validateUser(req.body)
        
         if(hasError){
@@ -49,25 +48,19 @@ export const createUser = async(req, res, next) => {
           }
         })
         
-    } catch (error) {
-        return res.status(500).json(error)
-        
-    }
-}
+   
+})
  
 
-export const  findOneUser = (req, res, next) => {
-    try {
+export const  findOneUser = catchAsync ((req, res, next) => {
+   
        const { user } = req
        return res.status(200).json(user) 
-    } catch (error) {
-        return res.status(500).json(error)
-        
-    }
-}
+    
+})
 
-export const  updateUser = async(req, res, next) => {
-    try {
+export const  updateUser =catchAsync (async(req, res, next) => {
+    
         const { hasError, errorMessages, userData } = validatePartialUser(req.body)
 
         if(hasError){
@@ -82,23 +75,17 @@ export const  updateUser = async(req, res, next) => {
         return res.status(200).json(userData)
         
 
-    } catch (error) {
-        return res.status(500).json(error)
-        
-    }
-}
+    
+})
 
-export const  deleteUser = async (req, res, next) => {
-   try {
+export const  deleteUser =catchAsync (async (req, res, next) => {
+   
     const { user } = req
     await userService.delete(user)
     return res.status(204).json(null)
-   } catch (error) {
-    return res.status(500).json(error)
     
-   } 
 } 
-
+)
 export const login = async (req, res, next) => {
     const { hasError, errorMessages, userData } = validateLogin(req.body)
   
@@ -109,22 +96,26 @@ export const login = async (req, res, next) => {
     })
   }
 
-  //1. validar que el usuario exista en base de datos
+  
+
+  
   const user = await userService.findUserByEmail(userData.email)
 
   if(!user){
     return next(new AppError('This account does not exist', 404))
   }
 
+
   const isCorrectPassword = await verifyPassword(
     userData.password,
     user.password
   )
-  //2 validar la contraseña si es correcta
+  
   if(!isCorrectPassword){
     return next(new AppError('Incorrect email or password', 401))
   }
-  //3 generar el token
+
+  
   const token = await generateJWT(user.id)
   //4. enviar la respuesta al cliente
   return res.status(200).json({
@@ -137,3 +128,44 @@ export const login = async (req, res, next) => {
     }
   })
 };
+
+
+export const changePassword = catchAsync(async(req, res, next) => {
+  
+  const { sessionUser } = req;
+
+  const { currentPassword, newPassword } = req.body;
+
+  if( currentPassword === newPassword ){
+    return next(new AppError('The password cannot be equals', 400))
+  }
+
+  const isCorrectPassword = await verifyPassword(
+    currentPassword,
+    sessionUser.password
+  )
+ 
+  if(!isCorrectPassword){
+    return next(new AppError('Incorrect email or password', 401))
+  }
+
+
+  const hashedNewPassword = await encryptedPassword(newPassword)
+
+  await userService.update(sessionUser, {
+    password: hashedNewPassword,
+    chagedPasswordAt: new Date(),
+  })
+
+  return res.status(200).json({
+    message: 'The user password was updated successfully'
+  })
+})
+
+export const deleteAccount = catchAsync(async(req, res, next) => {
+  const { user } = req;
+  
+  await userService.delete(user)
+
+  res.status(204).json(null)
+})

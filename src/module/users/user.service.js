@@ -34,8 +34,17 @@ export class UserService {
     return await User.findOne({
       where: {
         email,
-        status: true,
+        status: 'available',
       },
     });
+  }
+
+  async findUserById(id) {
+    return await User.findOne({
+      where: {
+        id,
+        status: true
+      }
+    })
   }
 }
