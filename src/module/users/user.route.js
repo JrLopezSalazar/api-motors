@@ -9,13 +9,13 @@ export const router = Router();
 
 router.post('/login', login)
 router.route('/')
-.get(findAllUsers)
+.get(protect, findAllUsers)
 .post(createUser);
 
 router.use('/:id', validExistUser)
 
 router.route('/:id')
-//.post('/login', login)
+
 .get(findOneUser)
 .patch(protect, protectAccount, updateUser)
 .delete(protect, protectAccount, deleteUser);

@@ -12,7 +12,9 @@ const generateJWT = id => {
                 expiresIn: envs.JWT_EXPIRE_IN
             },
             (err, token) => {
-                if (err) reject(err)
+                if (err){
+                    reject(err) 
+                } 
                 resolve(token)
             }
         )

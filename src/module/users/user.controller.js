@@ -1,25 +1,18 @@
 import { UserService } from "./user.service.js"
-import { validateUser } from './user.schema.js '
 import { validatePartialUser } from "./user.schema.js"
-import { validateLogin } from "./user.schema.js"
+import { validateLogin, validateUser  } from "./user.schema.js"
 import generateJWT from "../../config/plugins/generate-jwt.plugin.js"
 import { AppError} from "../../erros/index.js"
 import { encryptedPassword, verifyPassword} from "./../../config/plugins/encripted.password.js"
 import { catchAsync } from "../../erros/index.js"
 
 
-
 const userService = new UserService()
-
-
-
 
 export const findAllUsers = catchAsync (async(req, res, next) => {
     
         const users = await userService.findAll()
-        return res.status(200).json(users)
-
-    
+        return res.status(200).json(users) 
 })
 
 
@@ -86,7 +79,7 @@ export const  deleteUser =catchAsync (async (req, res, next) => {
     
 } 
 )
-export const login = async (req, res, next) => {
+export const  login = async (req, res, next) => {
     const { hasError, errorMessages, userData } = validateLogin(req.body)
   
   if(hasError){
@@ -95,16 +88,11 @@ export const login = async (req, res, next) => {
       message: errorMessages
     })
   }
-
-  
-
-  
   const user = await userService.findUserByEmail(userData.email)
 
   if(!user){
     return next(new AppError('This account does not exist', 404))
   }
-
 
   const isCorrectPassword = await verifyPassword(
     userData.password,

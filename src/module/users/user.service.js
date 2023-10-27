@@ -9,7 +9,7 @@ export class UserService {
     });
   }
 
-  async findOne(id) {
+  async findOneUser(id) {
     return await User.findOne({
       where: {
         id,

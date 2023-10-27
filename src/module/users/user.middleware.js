@@ -11,14 +11,11 @@ const userService = new UserService();
 export const validExistUser = catchAsync (async (req, res, next) => {
   
     const { id } = req.params;
-    const user = await userService.findOne(id);
+    const user = await userService.findOneUser(id);
 
     if (!user) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'use not found',
-      });
-    }
+      return next(new AppError('use not found', 404)) 
+     }
     req.user = user;
     next();
   
@@ -48,7 +45,7 @@ export const protect = catchAsync(async(req,res,next) => {
     token,
     envs.SECRET_JWT_SEED,
   )
-  console.log(decoded)
+  
 
   //4. buscar el usuario dueño del token, y validar si existe
   const user = await userService.findUserById(decoded.id)
@@ -58,7 +55,7 @@ export const protect = catchAsync(async(req,res,next) => {
       new AppError('The owner of this token is not longer available', 401)
     )
   }
-  console.log("hola")
+  
   
   //5. validar si el usuario cambio la contrase recientemente, si es asi enviar un error
   if(user.chagedPasswordAt) {

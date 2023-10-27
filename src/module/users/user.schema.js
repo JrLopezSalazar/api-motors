@@ -2,8 +2,6 @@ import z from 'zod'
 import { extractValidationData } from '../../utils/errorData.js'
 
 const userSchema = z.object({
-
-  
   name: z.string().min(2).max(240),
   email: z.string(),
   password: z.string().min(6, {message: 'Password does not meet required'}).max(80),
