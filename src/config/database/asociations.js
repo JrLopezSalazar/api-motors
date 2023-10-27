@@ -4,7 +4,7 @@ import { Repair } from "../../module/repairs/repairs.model.js"
 
 export const initModel = () => {
 
-    User.hasMany(Repair, { foreignKey: 'userId', as: 'userCreateRepair' });
+    User.hasMany(Repair, { foreignKey: 'user_id'}); //, as: 'userCreateRepair' 
 
-    Repair.belongsTo(User, { foreignKey: 'userId' });
+    Repair.belongsTo(User, { foreignKey: 'user_id' });
 }

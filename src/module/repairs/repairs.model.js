@@ -27,7 +27,8 @@ export const Repair = sequelize.define('repairs', {
   },
   userId: {
     allowNull: false, 
-    unique: true,
+
     type: DataTypes.INTEGER,
+    field: 'user_id'
   },
 });
